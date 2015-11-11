@@ -56,6 +56,15 @@
             }
         }
     }
+    /**
+     * string trim
+     *
+     */
+    if ( !String.prototype.trim ) {
+        String.prototype.trim = function () {
+            return this.replace(/^\s+|\s+$/g,'');
+        }
+    }
 
     var H = {},
         strundefined = typeof undefined,
@@ -92,24 +101,45 @@
         return proUtils.type(obj) == 'array';
     };
 
+    H.getId = function (id) {
+        return document.getElementById(id);
+    };
+    H.getClass = function(classes){
+        return document.getElementsByClassName(classes);
+    };
+
     H.addClass = function(el,value){
         var classes, elem, cur, clazz, j,finalValue,
             i = 0,
-            len = el.length,
-            proceed = typeof value === "string" && value;
-        if ( H.isFunction( value ) ) {
+            len = el.length || 1;
 
+        if ( H.isFunction( value ) ) {
+            value = value.call(this,el.className);
         }
-        if (proceed) {
+
+        var proceed = typeof value === "string" && value;
+        if ( proceed ) {
             classes = ( value || "" ).match( rnotwhite ) || [];
 
             for ( ; i < len ; i++ ) {
-                elem = el[0];
-                cur = elem.nodeType === 1&& ( elem.className ?
+                elem = el[i] || el ;
+                cur = elem.nodeType === 1 && ( elem.className ?
                         ( " " + elem.className + " " ).replace( rclass," " ) : " ");
+                if ( cur ) {
+                    j = 0;
+                    while ( clazz = classes[j++] ) {
+                        //如果添加的class在当前class中不存在则添加
+                        if ( cur.indexOf(" " + clazz + " ") < 0 ) {
+                            cur += clazz + " ";
+                        }
+                    }
+                    finalValue = cur.trim();
+                    if ( elem.className !== finalValue ) {
+                        elem.className = finalValue;
+                    }
+                }
             }
         }
-
     };
     H.removeClass = function(el,value){
 

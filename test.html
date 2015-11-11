@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>test lib component</title>
+</head>
+<body>
+<button class="a">add Class</button>
+<button class="a ss">add Class</button>
+<button class="b">remove Class</button>
+</body>
+<script src="H_lib.js"></script>
+<script>
+var btnA = H.getClass('a')[0];
+var btnB = H.getClass('b')[0];
+    btnA.onclick = function () {
+        H.addClass(btnA, function () {
+            return 'cc';
+        });
+    }
+</script>
+</html>
