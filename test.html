@@ -7,16 +7,18 @@
 </head>
 <body>
 <button class="a">add Class</button>
-<button class="a ss">add Class</button>
-<button class="b">remove Class</button>
+<button class="a ss">remove Class</button>
+<!--<button class="b">remove Class</button>-->
 </body>
+<script src="bower_components/jquery/dist/jquery.js"></script>
 <script src="H_lib.js"></script>
 <script>
-var btnA = H.getClass('a')[0];
+var btnA = H.getClass('a')[1];
 var btnB = H.getClass('b')[0];
     btnA.onclick = function () {
-        H.addClass(btnA, function () {
-            return 'cc';
+        H.removeClass(btnA, 'ss');
+        H.Modal({
+            content:"测试测试！"
         });
     }
 </script>
