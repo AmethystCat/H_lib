@@ -94,18 +94,52 @@
     /**
      * 对象方法
      */
-    H.isFunction = function(obj){
+    H.isFunction = function (obj){
         return proUtils.type(obj) === 'function';
     };
+
     H.isArray = function (obj) {
-        return proUtils.type(obj) == 'array';
+        return proUtils.type(obj) === 'array';
     };
+
+    H.isString = function (obj){
+        return proUtils.type(obj) === 'string' ;
+    }
 
     H.getId = function (id) {
         return document.getElementById(id);
     };
+
     H.getClass = function(classes){
         return document.getElementsByClassName(classes);
+    };
+
+    H.namespace = function(name){
+        if ( H.isString( name ) ) {
+            return ns( name );
+        } else if ( H.isFunction( name )  ) {
+           var new_ns =  name.call( this );
+           if ( !H.isString( new_ns ) ){
+                throw "必须返回一个有效的字符串。"
+                return;
+           } else {
+               return ns( new_ns );
+           }
+        } else {
+            throw "not strings in ";
+        }
+
+        function ns(names){
+            var parts = names.split('.'),
+                  current = H ;
+            for ( var i in parts ) {
+                if ( !current[ parts[ i ] ] ) {
+                    current[ parts[ i ] ] = {};
+                };
+                current = current[ parts[ i ] ];
+            }
+            return current;
+        }
     };
 
     H.addClass = function(el,value){
@@ -142,6 +176,7 @@
         }
         return this;
     };
+
     H.removeClass = function(el,value){
         var classes, elem, cur, clazz, j, finalValue,
             i = 0,
@@ -240,6 +275,21 @@
 
         return new D(option);
     };
+
+    H.isMobile = function(mobile) {
+        var myreg = /^(((17[0-9]{1})|(13[0-9]{1})|(15[0-9]{1})|(18[0-9]{1}))+\d{8})$/; 
+        if(!myreg.test(mobile)) { 
+            return false; 
+        }
+        return true;
+    };
+
+    H.isEmail = function(email) {
+        var myreg = /^[^\[\]\(\)\\<>:;,@.]+[^\[\]\(\)\\<>:;,@]*@[a-z0-9A-Z]+(([.]?[a-z0-9A-Z]+)*[-]*)*[.]([a-z0-9A-Z]+[-]*)+$/g;
+        if (!myreg.test(email)) {
+            return false;
+        };
+    }
     
     if ( typeof noGlobal === strundefined ){
         window.H = H;
