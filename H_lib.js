@@ -289,6 +289,7 @@
         if (!myreg.test(email)) {
             return false;
         };
+        return true;
     }
     
     if ( typeof noGlobal === strundefined ){
