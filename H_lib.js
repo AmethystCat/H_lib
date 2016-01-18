@@ -277,11 +277,12 @@
     };
 
     H.isMobile = function(mobile) {
-        var myreg = /^(((17[0-9]{1})|(13[0-9]{1})|(15[0-9]{1})|(18[0-9]{1}))+\d{8})$/; 
-        if(!myreg.test(mobile)) { 
-            return false; 
-        }
-        return true;
+ 	var myreg = /^(((17[0-9]{1})|(13[0-9]{1})|(15[0-9]{1})|(18[0-9]{1}))+\d{8})$/, 
+            zuoji = /^0\d{2,3}-?\d{7,8}$/;
+        //if(!myreg.test(mobile)) { 
+        //    return false; 
+        //}
+        return myreg.test(mobile) || zuoji.test(mobile);
     };
 
     H.isEmail = function(email) {
