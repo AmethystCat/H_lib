@@ -307,22 +307,21 @@
     };
 
     H.isMobile = function(mobile) {
- 	var myreg = /^(((17[0-9]{1})|(13[0-9]{1})|(15[0-9]{1})|(18[0-9]{1}))+\d{8})$/, 
+        var myreg = /^(((17[0-9]{1})|(13[0-9]{1})|(15[0-9]{1})|(18[0-9]{1}))+\d{8})$/, 
             zuoji = /^0\d{2,3}-?\d{7,8}$/;
-        //if(!myreg.test(mobile)) { 
-        //    return false; 
-        //}
         return myreg.test(mobile) || zuoji.test(mobile);
     };
 
     H.isEmail = function(email) {
         var myreg = /^[^\[\]\(\)\\<>:;,@.]+[^\[\]\(\)\\<>:;,@]*@[a-z0-9A-Z]+(([.]?[a-z0-9A-Z]+)*[-]*)*[.]([a-z0-9A-Z]+[-]*)+$/g;
-        if (!myreg.test(email)) {
-            return false;
-        };
-        return true;
-    }
-    
+        return myreg.test(email);
+    };
+
+    H.priceSwitch = function(price) {
+        var money = price >= 0 ? price/100 : -1;
+        return money;
+    };
+
     if ( typeof noGlobal === strundefined ){
         window.H = H;
     }
