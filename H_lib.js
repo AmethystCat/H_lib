@@ -104,7 +104,7 @@
 
     H.isString = function (obj){
         return proUtils.type(obj) === 'string' ;
-    }
+    };
 
     H.getId = function (id) {
         return document.getElementById(id);
@@ -228,11 +228,20 @@
                     title: '提示信息',
                     titlePostion: 'center',
                     content: '',
+                    autoClose: true,
                     closeBtn: false,
                     closeCallback: null,
+                    cancel: false,
+                    cancelCallback: null,
+                    cancelText: "关闭",
                     ok: true,
-                    okCallback: null
+                    okText: "确定",
+                    okCallback: null,
+                    maskClose: false
                 };
+            if (H.isString(option)) {
+                option = {content:option};
+            }
             var settings = $.extend(true, defaults, option || {});
             this.render(settings);
         });
@@ -242,7 +251,8 @@
             this.createDom(settings);
             //绑定事件
             $('#dialog-ok').on('click',function(event) {
-                settings.okCallback && settings.okCallback();
+                settings.okCallback && settings.okCallback(_this.destroy,$('#dialog-content'));
+                if (!settings.autoClose) return;
                 _this.destroy();
             });
         });
