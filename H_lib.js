@@ -288,14 +288,14 @@
             $('body')
                 .append(mask)
                 .append(dialogDom);
-            setTimeout(function(){
-                $('#dialog-body').css({
-                    'width': settings.width,
-                    'height': settings.height,
-                    'marginTop': '-' + settings.height/2 +'px',
-                    'marginLeft': '-' + settings.width/2 +'px'
-                });
-            },100);
+            // setTimeout(function(){
+            //     $('#dialog-body').css({
+            //         'width': settings.width,
+            //         'height': settings.height,
+            //         'marginTop': '-' + settings.height/2 +'px',
+            //         'marginLeft': '-' + settings.width/2 +'px'
+            //     });
+            // },100);
         });
         D.method('destroy',function(){
 	    // 用class来销毁弹窗，因为页面进入时可能会同时进行多个请求，从而可能会出现多个弹窗，此时页面上有多个‘#dialog-body’，用id删除会出错。
