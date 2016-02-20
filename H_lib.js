@@ -255,6 +255,24 @@
                 if (!settings.autoClose) return;
                 _this.destroy();
             });
+
+            $('#dialog-close').on('click',function(event) {
+                settings.closeCallback && settings.closeCallback(_this.destroy,$('#dialog-content'));
+                _this.destroy();
+            });
+
+            $('#dialog-cancel').on('click',function(event) {
+                settings.cancelCallback && settings.cancelCallback(_this.destroy,$('#dialog-content'));
+                if (!settings.autoClose) return;
+                _this.destroy();
+            });
+
+            $('body').on('click','#dialog-mask',function(){
+                if (settings.maskClose) {
+                    if (!settings.autoClose) return;
+                    _this.destroy();
+                }
+            });
         });
         D.method('createDom',function(settings){
             var mask = '<div class="dialog-mask" style="position: fixed;width: 100%;height: 100%;top: 0; left: 0;z-index: 1000;background: rgba(0,0,0,0.4);"></div>',
