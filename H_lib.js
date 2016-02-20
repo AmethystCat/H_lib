@@ -275,12 +275,13 @@
             });
         });
         D.method('createDom',function(settings){
-            var mask = '<div class="dialog-mask" style="position: fixed;width: 100%;height: 100%;top: 0; left: 0;z-index: 1000;background: rgba(0,0,0,0.4);"></div>',
-                dialogDom = '<div id="dialog-body" class="dialog-body" style="position: fixed;width: 0;height: 0;top: 50%;left: 50%;overflow: hidden;background: #fff;z-index: 1001;border-radius: 8px;transition: all 0.4s;">'+
-                    '<h3 class="dialog-title" style="text-align: '+settings.titlePostion+'; margin: 0;padding: 5px 0;background: #ccc;color:#666;">'+settings.title+'</h3>'+
-                    '<div class="dialog-content" style="width: 96%; height: '+(settings.height-75)+'px;;padding: 2%;color: #666;overflow: auto;word-break: break-all;">'+settings.content+'</div>'+
+            var mask = '<div class="dialog-mask" id="dialog-mask" style="position: fixed;width: 100%;height: 100%;top: 0; left: 0;z-index: 1000;background: rgba(0,0,0,0.4);"></div>',
+                dialogDom = '<div id="dialog-body" class="dialog-body animated zoomIn" style="position: fixed;width: '+settings.width+'px;height: '+settings.height+'px;top: 50%;left: 50%;margin-top:'+(-settings.height/2)+'px;margin-left:'+(-settings.width/2)+'px;overflow: hidden;background: #fff;z-index: 1001;border-radius: 4px;">'+
+                    '<h4 class="dialog-title" style="position: relative;text-align: '+settings.titlePostion+'; margin: 0;padding: 5px 0;background: #d2d2d2;color:#666;">'+settings.title+'<i id="dialog-close" class="dialog-close" style="display: '+ (settings.closeBtn ? 'inline-block' : 'none') +';position: absolute;top: 3px;right: 3px;width: 20px;height: 20px;line-height: 16px;text-align: center;border-radius: 50%;font-style: normal;cursor: pointer">x</i></h4>'+
+                    '<div class="dialog-content" id="dialog-content" style="width: 96%; height: '+(settings.height-70)+'px;;padding: 2%;color: #666;overflow: auto;word-break: break-all;">'+settings.content+'</div>'+
                     '<div class="dialog-btn-group" style="text-align: center; padding: 0;">'+
-                    '<button id="dialog-ok" class="dialog-ok" style="display: '+(settings.ok?'inline-block':'none')+';border: 0; border-radius: 3px; padding: 5px 15px; font-size: 14px; color:#666;">确定</button>'+
+                    '<button id="dialog-ok" class="dialog-ok btn btn-warning" style="display: '+(settings.ok?'inline-block':'none')+';border: 0; border-radius: 3px; margin: 0 5px; padding: 5px 15px; font-size: 14px; color:#fff;">'+settings.okText+'</button>'+
+                    '<button id="dialog-cancel" class="dialog-cancel btn btn-warning" style="display: '+(settings.cancel?'inline-block':'none')+';border: 0; border-radius: 3px; margin: 0 5px; padding: 5px 15px; font-size: 14px; color:#fff;">'+settings.cancelText+'</button>'+
                     '</div>'+
             '</div>';
             //append到页面
@@ -297,8 +298,9 @@
             },100);
         });
         D.method('destroy',function(){
+	    // 用class来销毁弹窗，因为页面进入时可能会同时进行多个请求，从而可能会出现多个弹窗，此时页面上有多个‘#dialog-body’，用id删除会出错。
             $('.dialog-mask').remove();
-            $('#dialog-body').remove();
+            $('.dialog-body').remove();
         });
 
         return new D(option);
