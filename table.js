@@ -13,7 +13,7 @@
 			loading: false,
 			pagination: {}
 		};
-		
+
 		this.id = id;
 		this.domstr = [];
 		this.settings = Object.assign({}, defaults, options || {});
@@ -34,7 +34,7 @@
 		var domarr = arr.map(function(el, index) {
 			return '<div class="cell">' + el.title + '</div>';
 		});
-		
+
 		// add thead container
 		domarr.unshift('<div class="thead" id="thead"><div class="row header green">');
 		domarr.push('</div></div>');
@@ -56,7 +56,7 @@
 						console.error('error: render function is undefined or it must return something.');
 						throw 'error: render function is undefined or it must return something.';
 					}
-					return '<div class="cell">' + r + '</div>';	
+					return '<div class="cell">' + r + '</div>';
 				}
 				return '<div class="cell">' + columnData + '</div>';
 			});
@@ -84,6 +84,16 @@
 	Table.method('reset', function(op){
 		var newSettings = this.settings = Object.assign({}, this.settings, op || {});
 		return newSettings;
+	});
+
+	// todo: loading
+	Table.method('loading', function() {
+
+	});
+
+	// todo: pagenation
+	Table.method('pagenation', function() {
+		
 	});
 
 	window.Table = function(id, options) {
