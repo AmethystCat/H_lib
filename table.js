@@ -53,6 +53,7 @@
 				if (v.render && typeof v.render === 'function') {
 					var r = v.render(columnData, el);
 					if (!r) {
+						console.warn('error title:', v.title);
 						console.error('error: render function is undefined or it must return something.');
 						throw 'error: render function is undefined or it must return something.';
 					}
