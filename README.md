@@ -2,9 +2,11 @@
 my own js lib here
 
 ## components
-* modal
+* pop modal
 * table
 * image-viewer(can rotate)
 * image-loader
 
-todo: add npm dependence and perfect readme
+todo: 
+    1.add npm dependence and perfect readme
+    2.增加弹出层code
