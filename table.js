@@ -1,4 +1,17 @@
-;(function(){
+;(function (global,factory) {
+    if ( typeof module === 'object' && typeof module.exports === 'object' ){
+        module.exports = global.document ?
+            factory( global ,true ) :
+            function( w ) {
+                if ( !w.document ) {
+                    throw new Error( 'I required a window with a document' );
+                }
+                return factory( w );
+            };
+    } else {
+        factory( global );
+    }
+}(typeof window !== 'undefined' ? window : this , function(window){
 	Function.prototype.method = function(name, fn) {
 		this.prototype[name] = fn;
 		return this;
@@ -100,4 +113,4 @@
 	window.Table = function(id, options) {
 		return new Table(id, options);
 	};
-})();
+});
