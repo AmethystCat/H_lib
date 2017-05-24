@@ -143,6 +143,26 @@ describe('table component unit test', function () {
         expect(actualDom).to.equal(expectDom);
     });
 
+    it('should_show_one_tip_tr_in_tbody_when_refresh_and_get_renderData_is_empty', function () {
+        //given
+        var config = {
+            renderContainer: $('#table'),
+            noDataTip: 'no data now',
+            columns: [
+                {title: 'name', dataIndex: 'name'},
+                {title: 'age', dataIndex: 'age'}
+            ],
+            renderData: [{name: 'jc', age: 18}]
+        };
+        var table = new Table(config);
+        table.refresh({renderData: []});
+        // when
+        var actualDom = table.getRenderContainer().find('tbody')[0].outerHTML;
+        var expectDom = '<tbody><tr><td colspan="2">no data now</td></tr></tbody>';
+        // then
+        expect(actualDom).to.equal(expectDom);
+    });
+
     it('should_refresh_table_when_give_new_render_data', function () {
         // given
         var config = {
@@ -232,5 +252,28 @@ describe('table component unit test', function () {
         expect(loadMask.hasClass('table-mask--fadeOut')).to.be.ok;
     });
 
-    it('')
+    it('should_refresh_a_given_row_when_the_row_data_updated', function () {
+        // given
+        var config = {
+            renderContainer: $('#table'),
+            columns: [{title: 'name', dataIndex: 'name'}],
+            renderData: [{name: 'hc'}, {name: 'hc2'}]
+        };
+        var table = new Table(config);
+        var tbody = table.renderContainer.find('tbody');
+        var updatedRow = {
+                rowIndex: 1,
+                data: [{name: 'bird'}]
+            };
+        // when
+        var targetTrDom = tbody.children('tr').get(updatedRow.rowIndex).outerHTML;
+        var expectTargetTrDom = '<tr><td>hc2</td></tr>';
+
+        table.refreshUnitRow(updatedRow);
+        var actualUpdatedTrDom = tbody.html();
+        var expectUpdatedTrDom = '<tr><td>hc</td></tr><tr><td>bird</td></tr>';
+        // then
+        expect(targetTrDom).to.equal(expectTargetTrDom);
+        expect(actualUpdatedTrDom).to.equal(expectUpdatedTrDom);
+    });
 });

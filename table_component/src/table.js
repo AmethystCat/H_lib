@@ -33,17 +33,23 @@
 
     function _generateTheadDomStr(columns, hasTableHeadInBrowser) {
         if (hasTableHeadInBrowser) return '';
-        var arr = [];
+        var theadDomArr = [];
         var thStr = columns.map(function (col) {
             return '<th>' + col.title + '</th>';
         }).join('');
         var trStr = thStr ? '<tr>' + thStr + '</tr>' : '';
-        arr.push('<thead>', trStr , '</thead>');
-        return arr.join('');
+        theadDomArr.push('<thead>', trStr , '</thead>');
+        return theadDomArr.join('');
     }
 
     function _generateTbodyDomStr(columns, renderData, noDataTip) {
-        var arr = [];
+        var tbodyDomArr = [];
+        var trStr = _getTrStr(columns, renderData, noDataTip);
+        tbodyDomArr.push('<tbody>', trStr, '</tbody>');
+        return tbodyDomArr.join('');
+    }
+
+    function _getTrStr(columns, renderData, noDataTip) {
         var hasColumns = columns.length;
         var trStr = renderData.map(function (row) {
             var tdArr = columns.map(function (col) {
@@ -59,13 +65,16 @@
         if (!trStr && hasColumns) {
             trStr = '<tr><td colspan="'+ columns.length + '">' + noDataTip + '</td></tr>';
         }
-        arr.push('<tbody>', trStr, '</tbody>');
-        return arr.join('');
+        return trStr;
     }
 
     function _throwException(errorMessage) {
         throw errorMessage;
     }
+
+    Table.prototype.getRenderContainer = function() {
+        return this.hasTableHeadInBrowser ? this.renderContainer.parent() : this.renderContainer;
+    };
 
     Table.prototype.getTableDom = function () {
         var tableHeadDomStr = _generateTheadDomStr(this._columns, this.hasTableHeadInBrowser);
@@ -86,8 +95,8 @@
 
     Table.prototype.refresh = function (updatedData) {
         this.setTableAttribute('_renderData', updatedData.renderData);
-        var newTbodyDomStr = _generateTbodyDomStr(this._columns, this._renderData);
-        this.renderContainer.find('tbody').replaceWith(newTbodyDomStr);
+        var newTbodyDomStr = _generateTbodyDomStr(this._columns, this._renderData, this.noDataTip);
+        this.getRenderContainer().find('tbody').replaceWith(newTbodyDomStr);
         return this;
     };
 
@@ -97,7 +106,7 @@
     };
 
     Table.prototype.showLoading = function (text) {
-        var parent = this.hasTableHeadInBrowser ? this.renderContainer.parent() : this.renderContainer;
+        var parent = this.getRenderContainer();
         parent
             .find('.table-mask')
             .removeClass('table-mask--fadeOut')
@@ -109,7 +118,7 @@
     };
 
     Table.prototype.hideLoading = function () {
-        var parent = this.hasTableHeadInBrowser ? this.renderContainer.parent() : this.renderContainer;
+        var parent = this.getRenderContainer();
         parent
             .find('.table-mask')
             .removeClass('table-mask--fadeIn')
@@ -130,6 +139,13 @@
             this.renderContainer.html('').append(tableDom, loadingMask);
         }
         return this;
+    };
+
+    Table.prototype.refreshUnitRow = function (updatedRow) {
+        var rowIndex = updatedRow.rowIndex,
+            rowData = updatedRow.data;
+        var rowDomWillRefresh = _getTrStr(this._columns, rowData, this.noDataTip);
+        this.renderContainer.find('tbody > tr').eq(rowIndex).replaceWith(rowDomWillRefresh);
     };
 
     window.Table = Table;
