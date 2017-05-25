@@ -76,6 +76,10 @@
         return this.hasTableHeadInBrowser ? this.renderContainer.parent() : this.renderContainer;
     };
 
+    Table.prototype.getRenderData = function() {
+        return this._renderData;
+    };
+
     Table.prototype.getTableDom = function () {
         var tableHeadDomStr = _generateTheadDomStr(this._columns, this.hasTableHeadInBrowser);
         var tableBodyDomStr = _generateTbodyDomStr(this._columns, this._renderData, this.noDataTip);
