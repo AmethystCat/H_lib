@@ -96,11 +96,15 @@
             return tbodyDomArr.join('');
         }
 
+        function specTrTd(columns, renderData, noDataTip) {
+            return _getTrs(columns, renderData, noDataTip);
+        }
         var domCategory = {
             'thead>tr>(checkbox+td)': theadTrHasCheckboxAndTd,
             'thead>tr>td': theadTrJustHasTd,
             'tbody>tr>(checkbox+td)': tbodyTrHasCheckboxAndTd,
-            'tbody>tr>td': tbodyTrJustHasTd
+            'tbody>tr>td': tbodyTrJustHasTd,
+            'tr>td': specTrTd
         };
 
         try {
