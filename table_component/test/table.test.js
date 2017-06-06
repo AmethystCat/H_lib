@@ -191,7 +191,6 @@ describe('table component unit test', function () {
             renderContainer: $('#table')
         };
         var table = new Table(config);
-        table.render();
         // when
         var actualDom = table.renderContainer.html();
         var expectDom = '<table><thead></thead><tbody></tbody></table>' +
@@ -275,5 +274,33 @@ describe('table component unit test', function () {
         // then
         expect(targetTrDom).to.equal(expectTargetTrDom);
         expect(actualUpdatedTrDom).to.equal(expectUpdatedTrDom);
+    });
+
+    it('show_row_checkbox_in_first_td_when_given_rowSelection_option', function() {
+        // given
+        var config = {
+            renderContainer: $('#table'),
+            columns: [{title: 'name', dataIndex: 'name'}],
+            renderData: [{name: 'hc', age: 18}, {name: 'lucy', age: 18}],
+            rowSelection: {
+                onChange: function (selectRowKeys, selectRows) {
+                    console.log(selectRowKeys, selectRows);
+                }
+            }
+        };
+        // when
+        var table = new Table(config);
+        var actualDom = table.getTableDom()[0].outerHTML;
+        var expectDom = '<table>' +
+                '<tbody>'+
+                    '<tr><th><input type="checkbox"></th>' + '<th>name</th></tr>' +
+                '</tbody>'+
+                '<tbody>' +
+                    '<tr><td><input type="checkbox"></td><td>hc</td></tr>' +
+                    '<tr><td><input type="checkbox"></td><td>lucy</td></tr>' +
+                '</tbody>'+
+            '</table>';
+        // then
+        expect(actualDom).to.equal(expectDom);
     });
 });

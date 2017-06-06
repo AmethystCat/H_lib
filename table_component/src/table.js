@@ -9,7 +9,8 @@
             noDataTip: NO_DATA_TIP,
             className: '',
             columns: [],
-            renderData: []
+            renderData: [],
+            rowSelection: {}
         };
         var settings = $.extend({}, defaultConfig, config || {});
         _basicCheck(settings);
@@ -20,6 +21,7 @@
         this.noDataTip = settings.noDataTip;
         this._columns = settings.columns;
         this._renderData = settings.renderData;
+        this.rowSelection = settings.rowSelection;
         this.render();
     }
 
@@ -31,41 +33,102 @@
         }
     }
 
-    function _generateTheadDomStr(columns, hasTableHeadInBrowser) {
-        if (hasTableHeadInBrowser) return '';
-        var theadDomArr = [];
-        var thStr = columns.map(function (col) {
-            return '<th>' + col.title + '</th>';
-        }).join('');
-        var trStr = thStr ? '<tr>' + thStr + '</tr>' : '';
-        theadDomArr.push('<thead>', trStr , '</thead>');
-        return theadDomArr.join('');
-    }
+    function _domCreator(createObj) {
+        var domFormat = createObj.domFormat,
+            columns = createObj.columns,
+            renderData = createObj.renderData,
+            noDataTip = createObj.noDataTip || NO_DATA_TIP;
 
-    function _generateTbodyDomStr(columns, renderData, noDataTip) {
-        var tbodyDomArr = [];
-        var trStr = _getTrStr(columns, renderData, noDataTip);
-        tbodyDomArr.push('<tbody>', trStr, '</tbody>');
-        return tbodyDomArr.join('');
-    }
+        var theadDomArr = ['<thead>', '', '</thead>'],
+            tbodyDomArr = ['<tbody>', '', '</tbody>'];
 
-    function _getTrStr(columns, renderData, noDataTip) {
-        var hasColumns = columns.length;
-        var trStr = renderData.map(function (row) {
-            var tdArr = columns.map(function (col) {
-                var tdData = row[col.dataIndex] || '';
-                if (col.render) {
-                    tdData = col.render(tdData, row);
-                    !tdData && _throwException(col.dataIndex + '| error: render can not return anything false');
-                }
-                return '<td>' + tdData + '</td>';
-            });
-            return '<tr>' + tdArr.join('') + '</tr>';
-        }).join('');
-        if (!trStr && hasColumns) {
-            trStr = '<tr><td colspan="'+ columns.length + '">' + noDataTip + '</td></tr>';
+        function _getThs(columns) {
+            return (
+                columns.map(function (col) {
+                    return '<th>' + col.title + '</th>';
+                }).join('')
+            );
         }
-        return trStr;
+
+        function _getTrs(columns, renderData, noDataTip, enhancer) {
+            var hasColumns = columns.length;
+            var trArr = renderData.map(function (row) {
+                var tdArr = columns.map(function (col) {
+                    var tdData = row[col.dataIndex] || '';
+                    if (col.render) {
+                        tdData = col.render(tdData, row);
+                        !tdData && _throwException(col.dataIndex + '| error: render can not return anything false');
+                    }
+                    return '<td>' + tdData + '</td>';
+                });
+                return '<tr>' + tdArr.join('') + '</tr>';
+            });
+            trArr = (enhancer && enhancer(trArr)) || trArr;
+            var trStr = trArr.join('');
+            if (!trStr && hasColumns) {
+                trStr = '<tr><td colspan="'+ columns.length + '">' + noDataTip + '</td></tr>';
+            }
+            return trStr;
+        }
+
+        function theadTrHasCheckboxAndTd(columns) {
+            var checkTh = '<th><input type="checkbox"></th>';
+            var ths = _getThs(columns);
+            var lastDom = checkTh + ths;
+            theadDomArr[1] = '<tr>' + lastDom + '</tr>';
+            return theadDomArr.join('');
+        }
+        function theadTrJustHasTd(columns) {
+            theadDomArr[1] = '<tr>' + _getThs(columns) + '</tr>';
+            return theadDomArr.join('');
+        }
+        function tbodyTrHasCheckboxAndTd(columns, renderData, noDataTip) {
+            var checkTd = '<td><input type="checkbox"></td>';
+            tbodyDomArr[1] = _getTrs(columns, renderData, noDataTip, function(trs) {
+                return trs.map(function(tr) {
+                    return checkTd + tr;
+                });
+            });
+            return tbodyDomArr.join('');
+        }
+        function tbodyTrJustHasTd(columns, renderData, noDataTip) {
+            tbodyDomArr[1] = _getTrs(columns, renderData, noDataTip);
+            return tbodyDomArr.join('');
+        }
+
+        var domCategory = {
+            'thead>tr>(checkbox+td)': theadTrHasCheckboxAndTd,
+            'thead>tr>td': theadTrJustHasTd,
+            'tbody>tr>(checkbox+td)': tbodyTrHasCheckboxAndTd,
+            'tbody>tr>td': tbodyTrJustHasTd
+        };
+
+        try {
+            return domCategory[domFormat](columns, renderData, noDataTip);
+        } catch (e) {
+            _throwException(e.message);
+        }
+    }
+
+    function _generateTheadDomStr(columns, hasTableHeadInBrowser, rowSelection) {
+        if (hasTableHeadInBrowser) return '';
+        var hasCheckbox = !$.isEmptyObject(rowSelection);
+        var domFormat = hasCheckbox ? 'thead>tr>(checkbox+td)' : 'thead>tr>td';
+        return _domCreator({
+            domFormat: domFormat,
+            columns: columns
+        });
+    }
+
+    function _generateTbodyDomStr(columns, renderData, noDataTip, rowSelection) {
+        var hasCheckbox = !$.isEmptyObject(rowSelection);
+        var domFormat = hasCheckbox ? 'tbody>tr>(checkbox+td)' : 'tbody>tr>td';
+        return _domCreator({
+            domFormat: domFormat,
+            columns: columns,
+            renderData: renderData,
+            noDataTip: noDataTip
+        });
     }
 
     function _throwException(errorMessage) {
@@ -81,8 +144,8 @@
     };
 
     Table.prototype.getTableDom = function () {
-        var tableHeadDomStr = _generateTheadDomStr(this._columns, this.hasTableHeadInBrowser);
-        var tableBodyDomStr = _generateTbodyDomStr(this._columns, this._renderData, this.noDataTip);
+        var tableHeadDomStr = _generateTheadDomStr(this._columns, this.hasTableHeadInBrowser, this.rowSelection);
+        var tableBodyDomStr = _generateTbodyDomStr(this._columns, this._renderData, this.noDataTip, this.rowSelection);
         if (this.hasTableHeadInBrowser) return $(tableBodyDomStr);
         var className = this.className;
         var hasClassName = !!className;
@@ -148,7 +211,12 @@
     Table.prototype.refreshUnitRow = function (updatedRow) {
         var rowIndex = updatedRow.rowIndex,
             rowData = updatedRow.data;
-        var rowDomWillRefresh = _getTrStr(this._columns, rowData, this.noDataTip);
+        var rowDomWillRefresh = _domCreator({
+                domFormat: 'tr>td',
+                columns: this._columns,
+                renderData: rowData,
+                noDataTip: this.noDataTip
+            });
         this.renderContainer.find('tbody > tr').eq(rowIndex).replaceWith(rowDomWillRefresh);
     };
 
