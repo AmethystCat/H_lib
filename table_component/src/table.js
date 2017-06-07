@@ -50,6 +50,10 @@
             );
         }
 
+        function _getTrThs(columns) {
+            return columns.length ? '<tr>' + _getThs(columns) + '</tr>' : '';
+        }
+
         function _getTrs(columns, renderData, noDataTip, enhancer) {
             var hasColumns = columns.length;
             var trArr = renderData.map(function (row) {
@@ -71,6 +75,18 @@
             return trStr;
         }
 
+        /**
+         * 各种策略的实现
+         * @returns {string}
+         */
+        function theadTrJustHasTh(columns) {
+            theadDomArr[1] = _getTrThs(columns);
+            return theadDomArr.join('');
+        }
+        function tbodyTrJustHasTd(columns, renderData, noDataTip) {
+            tbodyDomArr[1] = _getTrs(columns, renderData, noDataTip);
+            return tbodyDomArr.join('');
+        }
         function theadTrHasCheckboxAndTd(columns) {
             var checkTh = '<th><input type="checkbox"></th>';
             var ths = _getThs(columns);
@@ -78,39 +94,33 @@
             theadDomArr[1] = '<tr>' + lastDom + '</tr>';
             return theadDomArr.join('');
         }
-        function theadTrJustHasTd(columns) {
-            theadDomArr[1] = '<tr>' + _getThs(columns) + '</tr>';
-            return theadDomArr.join('');
-        }
         function tbodyTrHasCheckboxAndTd(columns, renderData, noDataTip) {
             var checkTd = '<td><input type="checkbox"></td>';
             tbodyDomArr[1] = _getTrs(columns, renderData, noDataTip, function(trs) {
                 return trs.map(function(tr) {
-                    return checkTd + tr;
+                    // tr: <tr><td>xxxx</td>...</tr>
+                    return '<tr>' + checkTd + tr.split('<tr>')[1];
                 });
             });
             return tbodyDomArr.join('');
         }
-        function tbodyTrJustHasTd(columns, renderData, noDataTip) {
-            tbodyDomArr[1] = _getTrs(columns, renderData, noDataTip);
-            return tbodyDomArr.join('');
-        }
-
         function specTrTd(columns, renderData, noDataTip) {
             return _getTrs(columns, renderData, noDataTip);
         }
+        /** end */
+
         var domCategory = {
             'thead>tr>(checkbox+td)': theadTrHasCheckboxAndTd,
-            'thead>tr>td': theadTrJustHasTd,
+            'thead>tr>td'           : theadTrJustHasTh,
             'tbody>tr>(checkbox+td)': tbodyTrHasCheckboxAndTd,
-            'tbody>tr>td': tbodyTrJustHasTd,
-            'tr>td': specTrTd
+            'tbody>tr>td'           : tbodyTrJustHasTd,
+            'tr>td'                 : specTrTd
         };
 
         try {
             return domCategory[domFormat](columns, renderData, noDataTip);
         } catch (e) {
-            _throwException(e.message);
+            _throwException(e);
         }
     }
 

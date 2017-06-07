@@ -276,7 +276,7 @@ describe('table component unit test', function () {
         expect(actualUpdatedTrDom).to.equal(expectUpdatedTrDom);
     });
 
-    it('show_row_checkbox_in_first_td_when_given_rowSelection_option', function() {
+    it('should_row_checkbox_in_first_td_when_given_rowSelection_option', function() {
         // given
         var config = {
             renderContainer: $('#table'),
@@ -290,11 +290,11 @@ describe('table component unit test', function () {
         };
         // when
         var table = new Table(config);
-        var actualDom = table.getTableDom()[0].outerHTML;
+        var actualDom = table.getRenderContainer().children('table')[0].outerHTML;
         var expectDom = '<table>' +
-                '<tbody>'+
+                '<thead>'+
                     '<tr><th><input type="checkbox"></th>' + '<th>name</th></tr>' +
-                '</tbody>'+
+                '</thead>'+
                 '<tbody>' +
                     '<tr><td><input type="checkbox"></td><td>hc</td></tr>' +
                     '<tr><td><input type="checkbox"></td><td>lucy</td></tr>' +
