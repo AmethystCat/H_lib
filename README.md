@@ -10,4 +10,4 @@ my own js lib here
 todo: 
     1.add npm dependence and perfect readme
     2.增加弹出层code
-    3.table.js dataIndex 增加对潜逃json结构的支持。
+    3.table checkbox 选中功能
