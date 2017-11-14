@@ -263,7 +263,7 @@
         var _this = this;
 
         if (hasCheckbox) {
-            this.renderContainer
+            this.getRenderContainer()
                 .on('click', 'tbody input[type="checkbox"]', function() {
                     var key = $(this).data('key');
                     var checkboxAll = $('#table').find('thead input[type="checkbox"]');
@@ -301,7 +301,7 @@
                 rowKeys: this.rowKeys
             });
 
-        this.renderContainer.find('tbody > tr').eq(rowIndex).replaceWith(rowDomWillRefresh);
+        this.getRenderContainer().find('tbody > tr').eq(rowIndex).replaceWith(rowDomWillRefresh);
     };
 
     Table.prototype.setSelectRowKeys = function(key) {
