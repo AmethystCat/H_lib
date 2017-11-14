@@ -179,7 +179,7 @@
     };
 
     Table.prototype.getRenderContainer = function() {
-        return this.hasTableHeadInBrowser ? this.renderContainer.parent() : this.renderContainer;
+        return this.renderContainer;
     };
 
     Table.prototype.getRenderData = function() {
@@ -218,7 +218,7 @@
     };
 
     Table.prototype.showLoading = function (text) {
-        var parent = this.getRenderContainer();
+        var parent = this.getRenderContainer().parent();
 
         parent
             .find('.table-mask')
@@ -231,7 +231,7 @@
     };
 
     Table.prototype.hideLoading = function () {
-        var parent = this.getRenderContainer();
+        var parent = this.getRenderContainer().parent();
 
         parent
             .find('.table-mask')
