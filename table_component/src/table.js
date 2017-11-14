@@ -10,7 +10,8 @@
             className: '',
             columns: [],
             renderData: [],
-            rowSelection: {}
+            rowSelection: {},
+            rowKeys: 'key'
         };
         var settings = $.extend({}, defaultConfig, config || {});
         _basicCheck(settings);
@@ -19,35 +20,38 @@
         this.renderContainer = settings.renderContainer;
         this.className = settings.className;
         this.noDataTip = settings.noDataTip;
+        this.rowSelection = settings.rowSelection;
+        this.rowKeys = settings.rowKeys;
+
         this._columns = settings.columns;
         this._renderData = settings.renderData;
-        this.rowSelection = settings.rowSelection;
-        this.render();
+        this._selectRowKeys = [];
+        this.init();
     }
 
     function _basicCheck(settings) {
         var renderContainerNodeName = settings.renderContainer[0].nodeName;
         var renderContainerIsTable = renderContainerNodeName === 'TABLE';
+        
         if (settings.hasTableHeadInBrowser && !renderContainerIsTable) {
             _throwException('| error: render container should be a table, when thead is existed in browser');
         }
     }
 
     function _domCreator(createObj) {
-        var domFormat = createObj.domFormat,
+        var domFormat = createObj.domFormat || 'tr>td',
             columns = createObj.columns,
             renderData = createObj.renderData,
-            noDataTip = createObj.noDataTip || NO_DATA_TIP;
+            noDataTip = createObj.noDataTip || NO_DATA_TIP,
+            rowKeys = createObj.rowKeys;
 
         var theadDomArr = ['<thead>', '', '</thead>'],
             tbodyDomArr = ['<tbody>', '', '</tbody>'];
 
         function _getThs(columns) {
-            return (
-                columns.map(function (col) {
+            return columns.map(function (col) {
                     return '<th>' + col.title + '</th>';
-                }).join('')
-            );
+                }).join('');
         }
 
         function _getTrThs(columns) {
@@ -88,18 +92,21 @@
             return tbodyDomArr.join('');
         }
         function theadTrHasCheckboxAndTd(columns) {
-            var checkTh = '<th><input type="checkbox"></th>';
+            var checkTh = '<th><label><input type="checkbox"></label></th>';
             var ths = _getThs(columns);
             var lastDom = checkTh + ths;
             theadDomArr[1] = '<tr>' + lastDom + '</tr>';
             return theadDomArr.join('');
         }
-        function tbodyTrHasCheckboxAndTd(columns, renderData, noDataTip) {
-            var checkTd = '<td><input type="checkbox"></td>';
+        function tbodyTrHasCheckboxAndTd(columns, renderData, noDataTip, rowKeys) {
+            var checkTd = function(key) {
+                    !key && _throwException('the every item in array shoud include a key');
+                    return '<td><label><input data-key="'+ key +'"  type="checkbox"></label></td>';
+                };
             tbodyDomArr[1] = _getTrs(columns, renderData, noDataTip, function(trs) {
-                return trs.map(function(tr) {
+                return trs.map(function(tr, index) {
                     // tr: <tr><td>xxxx</td>...</tr>
-                    return '<tr>' + checkTd + tr.split('<tr>')[1];
+                    return '<tr>' + checkTd(renderData[index][rowKeys]) + tr.split('<tr>')[1];
                 });
             });
             return tbodyDomArr.join('');
@@ -118,7 +125,7 @@
         };
 
         try {
-            return domCategory[domFormat](columns, renderData, noDataTip);
+            return domCategory[domFormat](columns, renderData, noDataTip, rowKeys);
         } catch (e) {
             _throwException(e);
         }
@@ -128,26 +135,48 @@
         if (hasTableHeadInBrowser) return '';
         var hasCheckbox = !$.isEmptyObject(rowSelection);
         var domFormat = hasCheckbox ? 'thead>tr>(checkbox+td)' : 'thead>tr>td';
+
         return _domCreator({
             domFormat: domFormat,
             columns: columns
         });
     }
 
-    function _generateTbodyDomStr(columns, renderData, noDataTip, rowSelection) {
+    function _generateTbodyDomStr(columns, renderData, noDataTip, rowSelection, rowKeys) {
         var hasCheckbox = !$.isEmptyObject(rowSelection);
         var domFormat = hasCheckbox ? 'tbody>tr>(checkbox+td)' : 'tbody>tr>td';
+
         return _domCreator({
             domFormat: domFormat,
             columns: columns,
             renderData: renderData,
-            noDataTip: noDataTip
+            noDataTip: noDataTip,
+            rowKeys: rowKeys
         });
     }
 
     function _throwException(errorMessage) {
         throw errorMessage;
     }
+
+    Table.prototype.init = function() {
+        this.render();
+
+        var hasSetCheckbox = !$.isEmptyObject(this.rowSelection);
+        if (hasSetCheckbox) {
+            var initSelectionRowKeys = this.rowSelection.selectRowKeys || [],
+                _this = this;
+
+            initSelectionRowKeys.length === this.getRenderData().length 
+                ?
+                this.getRenderContainer().find('input[type="checkbox"]').prop('checked', true)
+                :
+                initSelectionRowKeys.forEach(function(key) {
+                    _this.getRenderContainer().find('input[data-key='+ key +'][type="checkbox"]').prop('checked', true);
+                });
+            this.setSelectRowKeys(initSelectionRowKeys);
+        }
+    };
 
     Table.prototype.getRenderContainer = function() {
         return this.hasTableHeadInBrowser ? this.renderContainer.parent() : this.renderContainer;
@@ -159,13 +188,15 @@
 
     Table.prototype.getTableDom = function () {
         var tableHeadDomStr = _generateTheadDomStr(this._columns, this.hasTableHeadInBrowser, this.rowSelection);
-        var tableBodyDomStr = _generateTbodyDomStr(this._columns, this._renderData, this.noDataTip, this.rowSelection);
+        var tableBodyDomStr = _generateTbodyDomStr(this._columns, this._renderData, this.noDataTip, this.rowSelection, this.rowKeys);
+
         if (this.hasTableHeadInBrowser) return $(tableBodyDomStr);
+
         var className = this.className;
         var hasClassName = !!className;
         var $table = $('<table></table>');
-        hasClassName && $table.attr('class', className);
 
+        hasClassName && $table.attr('class', className);
         $table.append(tableHeadDomStr, tableBodyDomStr);
         return $table;
     };
@@ -188,6 +219,7 @@
 
     Table.prototype.showLoading = function (text) {
         var parent = this.getRenderContainer();
+
         parent
             .find('.table-mask')
             .removeClass('table-mask--fadeOut')
@@ -200,6 +232,7 @@
 
     Table.prototype.hideLoading = function () {
         var parent = this.getRenderContainer();
+
         parent
             .find('.table-mask')
             .removeClass('table-mask--fadeIn')
@@ -211,6 +244,7 @@
     Table.prototype.render = function () {
         var tableDom = this.getTableDom();
         var loadingMask = this.getMaskDom();
+
         if (this.hasTableHeadInBrowser) {
             this.renderContainer
                 .append(tableDom)
@@ -219,19 +253,72 @@
         } else {
             this.renderContainer.html('').append(tableDom, loadingMask);
         }
+
+        this.bindEvent();
         return this;
+    };
+
+    Table.prototype.bindEvent = function() {
+        var hasCheckbox = !$.isEmptyObject(this.rowSelection);
+        var _this = this;
+
+        if (hasCheckbox) {
+            this.renderContainer
+                .on('click', 'tbody input[type="checkbox"]', function() {
+                    var key = $(this).data('key');
+                    var checkboxAll = $('#table').find('thead input[type="checkbox"]');
+
+                    _this.setSelectRowKeys(key);
+                    checkboxAll.prop('checked', false);
+                    if (_this.getSelectRowKeys().length === _this.getRenderData().length) {
+                        checkboxAll.prop('checked', true);
+                    }
+                })
+                .on('click', 'thead input[type="checkbox"]', function() {
+                    var isChecked = $(this).prop('checked');
+                    var tbodyCheckbox = $('#table').find('tbody input[type="checkbox"]');
+
+                    if (isChecked) {
+                        _this.getRenderData().forEach(function(data) {
+                            _this.setSelectRowKeys(data[_this.rowKeys]);
+                        });
+                        tbodyCheckbox.prop('checked', true);
+                    } else {
+                        _this.setSelectRowKeys([]);
+                        tbodyCheckbox.prop('checked', false);
+                    }
+                });
+        }
     };
 
     Table.prototype.refreshUnitRow = function (updatedRow) {
         var rowIndex = updatedRow.rowIndex,
             rowData = updatedRow.data;
         var rowDomWillRefresh = _domCreator({
-                domFormat: 'tr>td',
                 columns: this._columns,
                 renderData: rowData,
-                noDataTip: this.noDataTip
+                noDataTip: this.noDataTip,
+                rowKeys: this.rowKeys
             });
+
         this.renderContainer.find('tbody > tr').eq(rowIndex).replaceWith(rowDomWillRefresh);
+    };
+
+    Table.prototype.setSelectRowKeys = function(key) {
+        // key = [];
+        if (Array.isArray(key)) {
+            this._selectRowKeys = key;
+            return;
+        }
+
+        var index = this._selectRowKeys.findIndex(function(selectedkey) {return selectedkey === key;});
+        var hasSelected = index !== -1;
+
+        hasSelected ? this._selectRowKeys.splice(index, 1) : this._selectRowKeys.push(key);
+    };
+
+    Table.prototype.getSelectRowKeys = function() {
+        return this._selectRowKeys;
     };
 
     window.Table = Table;

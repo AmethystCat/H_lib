@@ -276,12 +276,13 @@ describe('table component unit test', function () {
         expect(actualUpdatedTrDom).to.equal(expectUpdatedTrDom);
     });
 
-    it('should_row_checkbox_in_first_td_when_given_rowSelection_option', function() {
+    it('should_render_row_checkbox_in_first_td_when_given_rowSelection_option', function() {
         // given
         var config = {
             renderContainer: $('#table'),
             columns: [{title: 'name', dataIndex: 'name'}],
-            renderData: [{name: 'hc', age: 18}, {name: 'lucy', age: 18}],
+            renderData: [{id: 1, name: 'hc', age: 18}, {id: 2, name: 'lucy', age: 18}],
+            rowKeys: 'id',
             rowSelection: {
                 onChange: function (selectRowKeys, selectRows) {
                     console.log(selectRowKeys, selectRows);
@@ -293,14 +294,150 @@ describe('table component unit test', function () {
         var actualDom = table.getRenderContainer().children('table')[0].outerHTML;
         var expectDom = '<table>' +
                 '<thead>'+
-                    '<tr><th><input type="checkbox"></th>' + '<th>name</th></tr>' +
+                    '<tr><th><label><input type="checkbox"></label></th>' + '<th>name</th></tr>' +
                 '</thead>'+
                 '<tbody>' +
-                    '<tr><td><input type="checkbox"></td><td>hc</td></tr>' +
-                    '<tr><td><input type="checkbox"></td><td>lucy</td></tr>' +
+                    '<tr><td><label><input data-key="1" type="checkbox"></label></td><td>hc</td></tr>' +
+                    '<tr><td><label><input data-key="2" type="checkbox"></label></td><td>lucy</td></tr>' +
                 '</tbody>'+
             '</table>';
         // then
         expect(actualDom).to.equal(expectDom);
+    });
+
+    it('should_return_selected_rowkeys_when_check_checkbox', function() {
+        // given
+        var config = {
+            renderContainer: $('#table'),
+            columns: [{title: 'name', dataIndex: 'name'}],
+            renderData: [{id: 1, name: 'hc'}, {id: 2, name: 'lucy'}],
+            rowKeys: 'id',
+            rowSelection: {
+                selectRowKeys: []
+            }
+        };
+        var expectSelectRowKeys = [1];
+        // when
+        var table = new Table(config);
+        var checkbox = $('#table').find('tbody input[type="checkbox"]').eq(0);
+        checkbox.click()
+        var actualSelectRowKeys = table.getSelectRowKeys();
+        // then
+        expect(actualSelectRowKeys).to.deep.equal(expectSelectRowKeys);
+
+        // when
+        checkbox.click();
+        var theSecondActualSelectRowKeys = table.getSelectRowKeys();
+        // then
+        expect(theSecondActualSelectRowKeys).to.be.empty;
+    });
+
+    it('should_return_all_keys_when_check_all_checkbox', function() {
+        // given
+        var config = {
+            renderContainer: $('#table'),
+            columns: [{title: 'name', dataIndex: 'name'}],
+            renderData: [{id: 1, name: 'hc'}, {id: 2, name: 'lucy'}],
+            rowKeys: 'id',
+            rowSelection: {
+                selectRowKeys: []
+            }
+        };
+        var expectSelectRowKeys = [1, 2];
+        // when
+        var table = new Table(config);
+        var checkbox = $('#table').find('thead input[type="checkbox"]').eq(0);
+        checkbox.click()
+        var actualSelectRowKeys = table.getSelectRowKeys(); 
+        // then
+        expect(actualSelectRowKeys).to.deep.equal(expectSelectRowKeys); 
+
+
+
+        // when
+        checkbox.click();
+        var actualSelectRowKeys = table.getSelectRowKeys();
+        // then
+        expect(actualSelectRowKeys).to.be.empty;
+    });
+
+    it('should_checkAll_checkbox_be_cancel_checked_when_one_of_checkbox_in_tbody_cancel_checked', function() {
+        // given
+        var config = {
+            renderContainer: $('#table'),
+            columns: [{title: 'name', dataIndex: 'name'}],
+            renderData: [{id: 1, name: 'hc'}, {id: 2, name: 'lucy'}],
+            rowKeys: 'id',
+            rowSelection: {
+                selectRowKeys: []
+            }
+        };
+        var expectSelectRowKeys = [2];
+        // when
+        var table = new Table(config);
+        var checkbox_checkAll = $('#table').find('thead input[type="checkbox"]').eq(0);
+        var checkbox_tbody = $('#table').find('tbody input[type="checkbox"]').eq(0);
+
+        checkbox_checkAll.click();
+        checkbox_tbody.click();
+
+        var actualSelectRowKeys = table.getSelectRowKeys();
+        var isCheckedAll = checkbox_checkAll.prop('checked');
+        // then
+        expect(actualSelectRowKeys).to.deep.equal(expectSelectRowKeys); 
+        expect(isCheckedAll).to.not.be.true;
+
+
+        // given
+        var expectSelectRowKeys = [2, 1];
+        // when
+        checkbox_tbody.click();
+        var actualSelectRowKeys = table.getSelectRowKeys();
+        var isCheckedAll = checkbox_checkAll.prop('checked');
+        // then
+        expect(actualSelectRowKeys).to.deep.equal(expectSelectRowKeys);
+        expect(isCheckedAll).to.be.true;
+    });
+
+    it('should_select_target_checkbox_when_config_rowSelection_set_selectRowKeys', function() {
+        // given
+        var config = {
+            renderContainer: $('#table'),
+            columns: [{title: 'name', dataIndex: 'name'}],
+            renderData: [{id: 1, name: 'hc'}, {id: 2, name: 'lucy'}],
+            rowKeys: 'id',
+            rowSelection: {
+                selectRowKeys: [1]
+            }
+        };
+        var expectSelectRowKeys = [1];
+        // when
+        var table = new Table(config);
+        var actualSelectRowKeys = table.getSelectRowKeys();
+        var isTargetCheckboxChecked = $('#table').find('tbody input[data-key="1"]').prop('checked');
+        // then
+        expect(actualSelectRowKeys).to.deep.equal(expectSelectRowKeys);
+        expect(isTargetCheckboxChecked).to.be.true;
+    });
+    
+    it('should_checkboxAll_be_checked_when_initial_selectRowsKeys_are_all_renderData_keys', function() {
+        // given
+        var config = {
+            renderContainer: $('#table'),
+            columns: [{title: 'name', dataIndex: 'name'}],
+            renderData: [{id: 1, name: 'hc'}, {id: 2, name: 'lucy'}],
+            rowKeys: 'id',
+            rowSelection: {
+                selectRowKeys: [1, 2]
+            }
+        };
+        var expectSelectRowKeys = [1, 2];
+        // when
+        var table = new Table(config);
+        var actualSelectRowKeys = table.getSelectRowKeys();
+        var isTargetCheckboxChecked = $('#table').find('thead input[type="checkbox"]').prop('checked');
+        // then
+        expect(actualSelectRowKeys).to.deep.equal(expectSelectRowKeys);
+        expect(isTargetCheckboxChecked).to.be.true; 
     });
 });
