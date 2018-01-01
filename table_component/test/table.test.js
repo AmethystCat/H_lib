@@ -191,10 +191,25 @@ describe('table component unit test', function () {
             renderContainer: $('#table')
         };
         var table = new Table(config);
+        var expectDom = '<table><thead></thead><tbody></tbody></table>' +
+            '<div class="table-mask"><div class="loading">加载中...</div></div>';
         // when
         var actualDom = table.renderContainer.html();
+        // then
+        expect(actualDom).to.equal(expectDom);
+    });
+
+    it('should_show_"loading..."_text_when_set_loading_text_and_then_rendering', function() {
+        // given
+        var config = {
+            renderContainer: $('#table'),
+            loadingText: 'loading...'
+        };
+        var table = new Table(config);
         var expectDom = '<table><thead></thead><tbody></tbody></table>' +
-            '<div class="table-mask"><div class="loading">loading...</div></div>';
+        '<div class="table-mask"><div class="loading">loading...</div></div>';
+        // when
+        var actualDom = table.renderContainer.html();
         // then
         expect(actualDom).to.equal(expectDom);
     });

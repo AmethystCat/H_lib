@@ -1,12 +1,13 @@
 (function () {
-    var NO_DATA_TIP = 'no data',
-        DEFAULT_LOADING_TEXT = 'loading...';
+    var NO_DATA_TIP = '暂无数据',
+        DEFAULT_LOADING_TEXT = '加载中...';
 
     function Table(config) {
         var defaultConfig = {
             hasTableHeadInBrowser: false,
             renderContainer: $('#table'),
             noDataTip: NO_DATA_TIP,
+            loadingText: DEFAULT_LOADING_TEXT,
             className: '',
             columns: [],
             renderData: [],
@@ -20,6 +21,7 @@
         this.renderContainer = settings.renderContainer;
         this.className = settings.className;
         this.noDataTip = settings.noDataTip;
+        this.loadingText = settings.loadingText;
         this.rowSelection = settings.rowSelection;
         this.rowKeys = settings.rowKeys;
 
@@ -202,7 +204,7 @@
     };
 
     Table.prototype.getMaskDom = function () {
-        return $('<div class="table-mask"><div class="loading">' + DEFAULT_LOADING_TEXT + '</div></div>');
+        return $('<div class="table-mask"><div class="loading">' + this.loadingText + '</div></div>');
     };
 
     Table.prototype.refresh = function (updatedData) {
