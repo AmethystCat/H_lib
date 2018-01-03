@@ -455,4 +455,59 @@ describe('table component unit test', function () {
         expect(actualSelectRowKeys).to.deep.equal(expectSelectRowKeys);
         expect(isTargetCheckboxChecked).to.be.true; 
     });
+
+    it('should_clear_selectRowKeys_when_refresh_table', function() {
+        // given
+        var config = {
+            renderContainer: $('#table'),
+            columns: [{title: 'name', dataIndex: 'name'}],
+            renderData: [{id: 1, name: 'hc'}, {id: 2, name: 'lucy'}],
+            rowKeys: 'id',
+            rowSelection: {
+                selectRowKeys: [1, 2]
+            }
+        };
+        var newData = [{id: 3, name: 'lala'}];
+        // when
+        var table = new Table(config);
+        table.refresh({renderData: newData});
+        var selectRowKeys = table.getSelectRowKeys();
+        // then
+        expect(selectRowKeys.length).to.equal(0);
+    });
+
+    it('should_remove_all_checked_status_when_refresh_table', function() {
+        // given
+        var config = {
+            renderContainer: $('#table'),
+            columns: [{title: 'name', dataIndex: 'name'}],
+            renderData: [{id: 1, name: 'hc'}, {id: 2, name: 'lucy'}],
+            rowKeys: 'id',
+            rowSelection: {
+                selectRowKeys: [1, 2]
+            }
+        };
+        var newData = [{id: 3, name: 'laola'}];
+        var expectSelectRowKeys = [1, 2];
+        // when
+        var table = new Table(config);
+        var actualSelectRowKeys = table.getSelectRowKeys();
+        var isTargetCheckboxChecked = $('#table').find('thead input[type="checkbox"]').prop('checked');
+        // then
+        expect(actualSelectRowKeys).to.deep.equal(expectSelectRowKeys);
+        expect(isTargetCheckboxChecked).to.be.true;
+
+        // when
+        table.refresh({renderData: newData});
+        var isTargetCheckboxChecked = true;
+        $('#table').find('thead input[type="checkbox"]').each(function(i) {
+           if ($(this).prop('checked')) {
+               isTargetCheckboxChecked: true;
+               return false;
+           }
+           isTargetCheckboxChecked = false;
+        });
+        // then
+        expect(isTargetCheckboxChecked).to.not.be.true;
+    });
 });

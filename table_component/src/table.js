@@ -209,8 +209,18 @@
 
     Table.prototype.refresh = function (updatedData) {
         this.setTableAttribute('_renderData', updatedData.renderData);
+        if (this.getSelectRowKeys().length) {
+            this.setTableAttribute('rowSelection', {selectRowKeys: []});
+            this.setTableAttribute('_selectRowKeys', []);
+        }
+
         var newTbodyDomStr = _generateTbodyDomStr(this._columns, this._renderData, this.noDataTip);
-        this.getRenderContainer().find('tbody').replaceWith(newTbodyDomStr);
+        this.getRenderContainer()
+            .find('tbody')
+            .replaceWith(newTbodyDomStr);
+        this.getRenderContainer()
+            .find('thead input[type="checkbox"]')
+            .prop('checked', false);
         return this;
     };
 
