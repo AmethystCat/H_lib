@@ -510,4 +510,32 @@ describe('table component unit test', function () {
         // then
         expect(isTargetCheckboxChecked).to.not.be.true;
     });
+
+    it('should_reRender_checkbox_when_refresh', function() {
+        // given
+        var config = {
+            renderContainer: $('#table'),
+            columns: [{title: 'name', dataIndex: 'name'}],
+            renderData: [{id: 1, name: 'hc'}],
+            rowKeys: 'id',
+            rowSelection: {
+                selectRowKeys: []
+            }
+        };
+        var newData=[{id: 2, name: 'laola'}];
+        var expectDom = '<table>' +
+                '<thead>'+
+                    '<tr><th><label><input type="checkbox"></label></th>' + '<th>name</th></tr>' +
+                '</thead>'+
+                '<tbody>' +
+                    '<tr><td><label><input data-key="2" type="checkbox"></label></td><td>laola</td></tr>' +
+                '</tbody>'+
+            '</table>';
+        // when
+        var table = new Table(config);
+        table.refresh({renderData: newData});
+        var actualDom = table.getRenderContainer().children('table')[0].outerHTML;
+        // then
+        expect(actualDom).to.equal(expectDom);
+    });
 });

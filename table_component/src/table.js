@@ -214,7 +214,7 @@
             this.setTableAttribute('_selectRowKeys', []);
         }
 
-        var newTbodyDomStr = _generateTbodyDomStr(this._columns, this._renderData, this.noDataTip);
+        var newTbodyDomStr = _generateTbodyDomStr(this._columns, this._renderData, this.noDataTip, this.rowSelection, this.rowKeys);
         this.getRenderContainer()
             .find('tbody')
             .replaceWith(newTbodyDomStr);
