@@ -538,4 +538,21 @@ describe('table component unit test', function () {
         // then
         expect(actualDom).to.equal(expectDom);
     });
+
+    it('should_checkbox_checked_false_when_initSelectionRowKeys_and_renderData_is_"[ ]"', function() {
+        // given
+        var config = {
+            renderContainer: $('#table'),
+            columns:[{title: 'name', dataIndex: 'name'}],
+            renderData: [],
+            rowKeys: 'id',
+            rowSelection: {
+                selectRowKeys: []
+            }
+        };
+        // when
+        var table = new Table(config);
+        // then
+        expect(table.getRenderContainer().find('input[type="checkbox"]').prop('checked')).to.be.false;
+    });
 });

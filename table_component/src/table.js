@@ -169,7 +169,7 @@
             var initSelectionRowKeys = this.rowSelection.selectRowKeys || [],
                 _this = this;
 
-            initSelectionRowKeys.length === this.getRenderData().length 
+            initSelectionRowKeys.length && (initSelectionRowKeys.length === this.getRenderData().length)
                 ?
                 this.getRenderContainer().find('input[type="checkbox"]').prop('checked', true)
                 :
