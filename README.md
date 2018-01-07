@@ -6,8 +6,9 @@ my own js lib here
 * table
 * image-viewer(can rotate)
 * image-loader
+* validator
 
 todo: 
     1.add npm dependence and perfect readme
-    2.增加弹出层code
-    3.table checkbox 选中功能
+    2.validator add unit test
+
