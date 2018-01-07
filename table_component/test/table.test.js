@@ -555,4 +555,30 @@ describe('table component unit test', function () {
         // then
         expect(table.getRenderContainer().find('input[type="checkbox"]').prop('checked')).to.be.false;
     });
+
+    it('should_td_colspan_plus_1_when_renderData_is_"[ ]"_and_in_checkbox_mode', function() {
+        // given
+        var config = {
+            renderContainer: $('#table'),
+            columns: [{title: 'name', dataIndex: 'name'}],
+            renderData: [],
+            rowKeys: 'id',
+            rowSelection: {
+                selectRowKeys: []
+            }
+        };
+        var expectDom = '<table>' +
+            '<thead>'+
+                '<tr><th><label><input type="checkbox"></label></th>' + '<th>name</th></tr>' +
+            '</thead>'+
+            '<tbody>' +
+                '<tr><td colspan="2">暂无数据</td></tr>' +
+            '</tbody>'+
+        '</table>';
+        // when
+        var table = new Table(config);
+        var actualDom = table.getRenderContainer().find('table')[0].outerHTML;
+        // then
+        expect(actualDom).to.be.equal(expectDom);
+    });
 });

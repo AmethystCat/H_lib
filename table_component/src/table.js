@@ -111,6 +111,10 @@
                     return '<tr>' + checkTd(renderData[index][rowKeys]) + tr.split('<tr>')[1];
                 });
             });
+            if (!renderData.length) {
+                var tdLength = columns.length + 1;
+                tbodyDomArr[1] = tbodyDomArr[1].replace(/colspan="\d{1,2}"/gi, 'colspan="'+ tdLength +'"');
+            }
             return tbodyDomArr.join('');
         }
         function specTrTd(columns, renderData, noDataTip) {
