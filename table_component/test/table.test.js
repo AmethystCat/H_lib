@@ -95,7 +95,7 @@ describe('table component unit test', function () {
         expect(function() {new Table(config)}).to.throw(expectError);
     });
 
-    it('should_throw_error_that_render_container_should_be_a_table_when_table_head_is_exist_in_browser', function () {
+    it('should_throw_error_that_render_container_should_be_a_table_element_when_table_head_is_exist_in_browser', function () {
         // given
         var tableContainer = $('<div></div>');
         var config = {
