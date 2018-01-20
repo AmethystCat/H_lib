@@ -12,3 +12,5 @@ todo:
     1.add npm dependence and perfect readme
     2.validator add unit test
 
+will: 
+* Design pattern
