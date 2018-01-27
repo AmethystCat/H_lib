@@ -321,6 +321,10 @@
         var money = price >= 0 ? price/100 : -1;
         return money;
     };
+    
+    H.deepCopy = function(obj) {
+	return JSON.parse(JSON.stringify(obj));
+    } 
 
     if ( typeof noGlobal === strundefined ){
         window.H = H;
